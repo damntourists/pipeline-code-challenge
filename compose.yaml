@@ -1,0 +1,93 @@
+services:
+  db:
+    container_name: db
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: asset_db
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: Password123
+      MYSQL_ROOT_PASSWORD: Password123
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  traefik:
+    container_name: traefik
+    image: traefik:v3.6.1
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--tracing=true"
+      - "--accesslog=true"
+      - "--accesslog.format=json"
+      - "--accesslog.fields.headers.names.User-Agent=keep"
+      - "--accesslog.fields.headers.names.X-Request-Id=keep"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    networks:
+      - backend
+    volumes:
+      - ${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock:ro
+      - ./certs:/etc/traefik/certs:ro
+      - ./traefik_config:/etc/traefik/dynamic:ro
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dozzle-http.rule=Host(`dozzle.localhost`)"
+      - "traefik.http.routers.dozzle-http.entrypoints=web"
+      - "traefik.http.routers.dozzle-https.rule=Host(`dozzle.localhost`)"
+      - "traefik.http.routers.dozzle-https.entrypoints=websecure"
+      - "traefik.http.routers.dozzle-https.tls=true"
+
+  assetsvc:
+    container_name: assets
+    build:
+      context: .
+      dockerfile: services/asset-service/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+    networks:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.asset-service.loadbalancer.server.port=8080"
+      - "traefik.http.routers.asset-service-http.rule=Host(`asset.localhost`)"
+      - "traefik.http.routers.asset-service-http.entrypoints=web"
+      - "traefik.http.routers.asset-service-https.rule=Host(`asset.localhost`)"
+      - "traefik.http.routers.asset-service-https.entrypoints=websecure"
+      - "traefik.http.routers.asset-service-https.tls=true"
+
+volumes:
+  mysql_data:
+
+networks:
+  backend:
+    driver: bridge

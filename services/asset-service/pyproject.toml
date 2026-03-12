@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asset-service"
+version = "0.1.0"
+description = "Core asset service to interface with the asset database."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "Flask>=3.0.0",
+    "Flask-SQLAlchemy>=3.1.0",
+    "flask-marshmallow>=1.2.0",
+#    "marshmallow-sqlalchemy>=1.0.0",
+    "flask-swagger-ui>=4.11.0",
+    "SQLAlchemy>=2.0.0",
+    "click>=8.1.0",
+    "python-dotenv>=1.0.0",
+    "pymysql>=1.1.0",
+    "cryptography",
+    "gunicorn>=21.0.0",
+
+    "asset-common",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
