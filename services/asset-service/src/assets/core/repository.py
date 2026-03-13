@@ -4,7 +4,7 @@ from sqlalchemy import func, and_
 from sqlalchemy.orm import Session
 
 from assets.db.models import Asset, AssetVersion
-from ..db.models.types import Department, AssetStatus, AssetType
+from assets.db.models.types import Department, AssetStatus, AssetType
 
 class AssetRepository:
     def __init__(self, session: Session):

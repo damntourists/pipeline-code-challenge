@@ -4,8 +4,8 @@ from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from .base import Base
-from .types import Department, AssetStatus
+from assets.db.models.base import Base
+from assets.db.models.types import Department, AssetStatus
 
 """
 Asset Version:
