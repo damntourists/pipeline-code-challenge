@@ -6,7 +6,22 @@ LAIKA Pipeline Engineering Coding Challenge
 cp .env.example .env
 ```
 
-## SSL (optional)
+# Python Library Example
+### Start the MySQL server
+```shell
+docker-compose up -d db
+```
+
+### Start Jupyter Notebook
+
+
+# REST Example
+
+https://traefik.localhost
+
+https://dozzle.localhost
+
+### Configure SSL
 ```shell
 sudo apt install mkcert libnss3-tools
 mkcert -install

@@ -7,7 +7,7 @@ name = "asset-common"
 version = "0.1.0"
 description = "Shared common library"
 dependencies = [
-    "structlog",
+
 ]
 
 [tool.setuptools.packages.find]

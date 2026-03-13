@@ -24,6 +24,8 @@ services:
     container_name: traefik
     image: traefik:v3.6.1
     command:
+      - "--ping=true"
+      - "--ping.terminatingStatusCode=204"
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker=true"
@@ -37,6 +39,8 @@ services:
       - "--accesslog.format=json"
       - "--accesslog.fields.headers.names.User-Agent=keep"
       - "--accesslog.fields.headers.names.X-Request-Id=keep"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
     ports:
       - "80:80"
       - "443:443"
@@ -47,6 +51,17 @@ services:
       - ${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock:ro
       - ./certs:/etc/traefik/certs:ro
       - ./traefik_config:/etc/traefik/dynamic:ro
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik.localhost`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
+      - "traefik.http.routers.traefik-secure.entrypoints=websecure"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+      - "traefik.http.routers.traefik-secure.tls=true"
 
   dozzle:
     container_name: dozzle
@@ -63,6 +78,11 @@ services:
       - "traefik.http.routers.dozzle-https.rule=Host(`dozzle.localhost`)"
       - "traefik.http.routers.dozzle-https.entrypoints=websecure"
       - "traefik.http.routers.dozzle-https.tls=true"
+    healthcheck:
+      test: ["CMD", "/dozzle", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   assetsvc:
     container_name: assets
@@ -73,7 +93,9 @@ services:
       db:
         condition: service_healthy
     restart: always
-
+    volumes:
+      - ./services/asset-service/src/assets:/app/src/assets
+      - ./common/src/asset_common:/tmp/common/src/asset_common
     networks:
       - backend
     labels:
@@ -84,6 +106,31 @@ services:
       - "traefik.http.routers.asset-service-https.rule=Host(`asset.localhost`)"
       - "traefik.http.routers.asset-service-https.entrypoints=websecure"
       - "traefik.http.routers.asset-service-https.tls=true"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health').getcode() == 200 or exit(1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  assetsvc-test:
+      build:
+        context: .
+        dockerfile: services/asset-service/Dockerfile
+      depends_on:
+        db:
+          condition: service_healthy
+        assetsvc:
+          condition: service_healthy
+      profiles:
+        - test
+      environment:
+        - DATABASE_URL=mysql+pymysql://dbuser:Password123@db:3306/asset_test_db
+        - RUN_TESTS=true
+      volumes:
+        - ./services/asset-service/src/assets:/app/src/assets
+        - ./common/src/asset_common:/tmp/common/src/asset_common
+      command: pytest src/assets/tests
 
 volumes:
   mysql_data:
