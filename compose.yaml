@@ -117,11 +117,6 @@ services:
       build:
         context: .
         dockerfile: services/asset-service/Dockerfile
-      depends_on:
-        db:
-          condition: service_healthy
-        assetsvc:
-          condition: service_healthy
       profiles:
         - test
       environment:
