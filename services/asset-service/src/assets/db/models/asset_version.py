@@ -23,7 +23,11 @@ class AssetVersion(Base):
     __tablename__ = "asset_versions"
 
     id = Column(Integer, primary_key=True)
-    asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
+    asset_id = Column(
+        Integer,
+        ForeignKey("assets.id", ondelete="CASCADE"),
+        nullable=False,
+    )
     version = Column(Integer, nullable=False)
 
     department = Column(SAEnum(Department, native_enum=False), nullable=False)
