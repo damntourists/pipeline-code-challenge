@@ -1,8 +1,12 @@
 import os
 import sys
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+
 from alembic import context
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
+
+load_dotenv()
 
 # 1. Path setup
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,7 +24,11 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
-DB_URL = os.getenv("DATABASE_URL", "mysql+pymysql://dbuser:Password123@db:3306/asset_db")
+DB_URL = os.getenv(
+    "DATABASE_URL",
+    "mysql+pymysql://dbuser:Password123@localhost:3306/asset_db",
+)
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode (outputs SQL scripts)."""
@@ -44,7 +52,7 @@ def run_migrations_online() -> None:
     engine = engine_from_config(
         conf,
         prefix="sqlalchemy.",
-        poolclass=pool.NullPool
+        poolclass=pool.NullPool,
     )
 
     with engine.connect() as connection:
@@ -55,6 +63,7 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()
