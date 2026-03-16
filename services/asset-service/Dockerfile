@@ -34,6 +34,8 @@ COPY --from=builder /opt/venv /opt/venv
 COPY common /tmp/common
 
 COPY services/asset-service/ .
+COPY services/asset-service/alembic/ /app/alembic/
+COPY services/asset-service/alembic.ini /app/alembic.ini
 
 RUN pip install -e .
 
