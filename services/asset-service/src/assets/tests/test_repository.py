@@ -9,10 +9,10 @@ from assets.db.models.types import AssetType, Department, AssetStatus
 
 
 
-def test_create_asset_creates_version_1(db_session: Session):
+def test_create_new_asset_creates_version_1(db_session: Session):
     repo = AssetRepository(db_session)
 
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -28,7 +28,7 @@ def test_create_asset_creates_version_1(db_session: Session):
 def test_create_version_increment_automatically(db_session: Session):
     repo = AssetRepository(db_session)
 
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -48,7 +48,7 @@ def test_get_by_id_returns_none_for_nonexistent_id(db_session: Session):
 
 def test_get_next_version_number_returns_next_version(db_session: Session):
     repo = AssetRepository(db_session)
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -58,7 +58,7 @@ def test_get_next_version_number_returns_next_version(db_session: Session):
 def test_duplicate_asset_name_and_type_raises_error(db_session: Session):
     repo = AssetRepository(db_session)
 
-    repo.create_asset(
+    repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -66,7 +66,7 @@ def test_duplicate_asset_name_and_type_raises_error(db_session: Session):
 
     # Should raise IntegrityError since we cannot have duplicate name+type
     with pytest.raises(IntegrityError):
-        repo.create_asset(
+        repo.create_new_asset(
             "CharTest",
             asset_type=AssetType.CHARACTER,
             dept=Department.MODELING,
@@ -84,7 +84,7 @@ def test_create_version_for_nonexistent_asset_raises_error(db_session: Session):
 def test_unique_asset_constraint_raises_error(db_session: Session):
     repo = AssetRepository(db_session)
 
-    repo.create_asset(
+    repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -93,7 +93,7 @@ def test_unique_asset_constraint_raises_error(db_session: Session):
     # Should raise IntegrityError since we cannot have duplicate name+type for
     # different department
     with pytest.raises(IntegrityError):
-        repo.create_asset(
+        repo.create_new_asset(
             "CharTest",
             asset_type=AssetType.CHARACTER,
             dept=Department.ANIMATION,
@@ -113,7 +113,7 @@ def test_orphaned_asset_version_raises_error(db_session: Session):
 def test_unique_asset_version_constraint_raises_error(db_session: Session):
     repo = AssetRepository(db_session)
 
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -136,7 +136,7 @@ def test_unique_asset_version_constraint_raises_error(db_session: Session):
 def test_version_increments_across_departments(db_session: Session):
     repo = AssetRepository(db_session)
 
-    char_model_asset = repo.create_asset(
+    char_model_asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -158,7 +158,7 @@ def test_version_increments_across_departments(db_session: Session):
 
 def test_get_by_name_and_type(db_session: Session):
     repo = AssetRepository(db_session)
-    repo.create_asset(
+    repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -179,7 +179,7 @@ def test_get_all_assets(db_session: Session):
     repo = AssetRepository(db_session)
 
     for i in range(5):
-        repo.create_asset(
+        repo.create_new_asset(
             "CharTest%d" % i,
             asset_type=AssetType.CHARACTER,
             dept=Department.MODELING,
@@ -194,7 +194,7 @@ def test_get_all_versions(db_session: Session):
     repo = AssetRepository(db_session)
 
     # v1
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -210,7 +210,7 @@ def test_get_all_versions(db_session: Session):
 
 def test_version_increment_after_jump(db_session: Session):
     repo = AssetRepository(db_session)
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -225,7 +225,7 @@ def test_version_insert_after_jump(db_session: Session):
     repo = AssetRepository(db_session)
 
     # v1
-    v1 = repo.create_asset(
+    v1 = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -242,7 +242,7 @@ def test_version_insert_after_jump(db_session: Session):
 
 def test_create_version_with_status(db_session: Session):
     repo = AssetRepository(db_session)
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -255,7 +255,7 @@ def test_create_version_with_status(db_session: Session):
 
 def test_delete_asset_deletes_versions(db_session: Session):
     repo = AssetRepository(db_session)
-    asset = repo.create_asset(
+    asset = repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
@@ -271,13 +271,13 @@ def test_delete_asset_deletes_versions(db_session: Session):
 
 def test_asset_name_is_case_sensitive(db_session: Session):
     repo = AssetRepository(db_session)
-    repo.create_asset(
+    repo.create_new_asset(
         "CharTest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
     )
 
-    repo.create_asset(
+    repo.create_new_asset(
         "chartest",
         asset_type=AssetType.CHARACTER,
         dept=Department.MODELING,
