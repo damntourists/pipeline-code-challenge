@@ -1,7 +1,11 @@
+from typing import Any, Generator
+
 import pytest
+
+
 from assets.main import app as flask_app
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, event, Engine
+from sqlalchemy.orm import sessionmaker, Session
 
 from assets.db.models.base import Base
 
@@ -13,8 +17,8 @@ def app():
 def client(app):
     return app.test_client()
 
-@pytest.fixture
-def db_session(app):
+@pytest.fixture(scope="session")
+def engine() -> Engine:
     engine = create_engine("sqlite:///:memory:")
 
     # Enable foreign key constraints for SQLite
@@ -25,10 +29,20 @@ def db_session(app):
         cursor.close()
 
     Base.metadata.create_all(engine)
-    session_cls = sessionmaker(bind=engine)
-    session = session_cls()
+
+    return engine
+
+@pytest.fixture
+def db_session(app, engine):
+    connection = engine.connect()
+    transaction = connection.begin()
+    session = sessionmaker(bind=connection)()
 
     yield session
 
     session.close()
-    Base.metadata.drop_all(engine)
+    if transaction.is_active:
+        transaction.rollback()
+    connection.close()
+
+    #Base.metadata.drop_all(engine)

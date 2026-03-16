@@ -96,6 +96,8 @@ services:
     volumes:
       - ./services/asset-service/src/assets:/app/src/assets
       - ./common/src/asset_common:/tmp/common/src/asset_common
+      - ./services/asset-service/alembic:/app/alembic
+      - ./services/asset-service/alembic.ini:/app/alembic.ini
     networks:
       - backend
     labels:

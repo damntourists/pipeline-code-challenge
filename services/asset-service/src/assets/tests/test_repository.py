@@ -71,6 +71,7 @@ def test_duplicate_asset_name_and_type_raises_error(db_session: Session):
             asset_type=AssetType.CHARACTER,
             dept=Department.MODELING,
         )
+        db_session.flush()
 
 def test_create_version_for_nonexistent_asset_raises_error(db_session: Session):
     repo = AssetRepository(db_session)
@@ -260,9 +261,10 @@ def test_delete_asset_deletes_versions(db_session: Session):
         dept=Department.MODELING,
     )
     repo.create_version(asset.id, dept=Department.MODELING)
+    db_session.flush()
 
     db_session.delete(asset)
-    db_session.commit()
+    db_session.flush()
 
     versions = db_session.query(AssetVersion).filter_by(asset_id=asset.id).all()
     assert len(versions) == 0
