@@ -5,10 +5,13 @@ class BaseAssetException(Exception):
     """Base class for all asset exceptions"""
     pass
 
+class ValidationError(BaseAssetException):
+    """Raised when an asset fails validation"""
+    pass
+
 class AssetNotFoundError(BaseAssetException):
     """Raised when an asset is not found"""
-    def __init__(self, identifier: int):
-        super().__init__(f"Asset with identifier '{identifier}' not found")
+    pass
 
 class DuplicateAssetError(BaseAssetException):
     """Raised when an asset with the same name and type already exists"""
@@ -19,8 +22,3 @@ class DuplicateAssetError(BaseAssetException):
         super().__init__(
             f"Asset with name '{name}' and type '{asset_type}' already exists"
         )
-
-class ValidationError(BaseAssetException):
-    """Raised when an asset fails validation"""
-    def __init__(self, message: str):
-        super().__init__(f"Asset validation failed: {message}")

@@ -1,9 +1,7 @@
 __pycache__/
 __pypackages__/
 
-
-# Jupyter Notebook
-.ipynb_checkpoints
+**/*.egg-info/
 
 .env
 .idea
