@@ -7,19 +7,9 @@ from sqlalchemy.orm import relationship
 from assets.db.models.base import Base
 from assets.db.models.types import Department, AssetStatus
 
-"""
-Asset Version:
-| Field         | Type          | Notes                                                             |
-| -------       | ------        | -------                                                           |
-| asset         | foreign key   | reference to the asset this version represents                    |
-| department    | string        | required: ex. modeling, texturing, rigging, animation, cfx, fx    |
-| version       | integer       | ≥ 1 and follows a sequential order                                |
-| status        | enum          | active, inactive                                                  |
-
-"""
-
 
 class AssetVersion(Base):
+    """Asset version model"""
     __tablename__ = "asset_versions"
 
     id = Column(Integer, primary_key=True)

@@ -12,14 +12,17 @@ from assets.db.models.base import Base
 
 @pytest.fixture
 def app():
+    """Fixture to provide the Flask app for testing"""
     return flask_app
 
 @pytest.fixture
 def client(app):
+    """Fixture to provide a test client for the Flask app"""
     return app.test_client()
 
 @pytest.fixture(scope="session")
 def engine() -> Engine:
+    """Fixture to provide a test database engine"""
     engine = create_engine("sqlite:///:memory:")
 
     # Enable foreign key constraints for SQLite
@@ -35,6 +38,7 @@ def engine() -> Engine:
 
 @pytest.fixture
 def db_session(app, engine):
+    """Fixture to provide a database session"""
     connection = engine.connect()
     transaction = connection.begin()
     session = sessionmaker(bind=connection)()
@@ -48,6 +52,7 @@ def db_session(app, engine):
 
 @pytest.fixture
 def api_client(client, db_session, monkeypatch):
+    """Fixture to provide a test client for the Flask app"""
     def _session_factory():
         return db_session
 

@@ -21,6 +21,9 @@ log.info("Initializing asset service routes", extra={"blueprint": bp})
 
 @bp.before_app_request
 def log_request_started() -> None:
+    """
+    Logs the start of a request with details like path, method, and query parameters.
+    """
     g.request_path = request.path
     g.request_method = request.method
     log.info(
@@ -38,6 +41,9 @@ def log_request_started() -> None:
 
 @bp.after_app_request
 def log_request_finished(response: Response) -> Response:
+    """
+    Logs the end of a request with details like path, method, and status code.
+    """
     log.info(
         "Request completed",
         extra={
@@ -50,6 +56,9 @@ def log_request_finished(response: Response) -> Response:
 
 
 def _get_service() -> tuple:
+    """
+    Retrieves the database session and asset service.
+    """
     session = SessionLocal()
     repo = AssetRepository(session)
     service = AssetService(repo)
@@ -58,29 +67,44 @@ def _get_service() -> tuple:
 
 
 def _close_session(session) -> None:
+    """
+    Closes the database session and logs the action.
+    """
     session.close()
     log.info("Database session closed")
 
 
 def _parse_asset_type(value: Optional[str]) -> AssetType | None:
+    """
+    Parses the asset type from a string.
+    """
     if value is None:
         return None
     return AssetType(value)
 
 
 def _parse_department(value: Optional[str]) -> Department | None:
+    """
+    Parses the department from a string.
+    """
     if value is None:
         return None
     return Department(value)
 
 
 def _parse_status(value: Optional[str]) -> AssetStatus | None:
+    """
+    Parses the asset status from a string.
+    """
     if value is None:
         return None
     return AssetStatus(value)
 
 
 def _asset_to_dict(asset) -> dict:
+    """
+    Converts an asset object to a dictionary.
+    """
     return {
         "id": asset.id,
         "name": asset.name,
@@ -99,6 +123,9 @@ def _asset_to_dict(asset) -> dict:
 
 
 def _asset_version_to_dict(asset_version) -> dict:
+    """
+    Converts an asset version to a dictionary.
+    """
     return {
         "id": asset_version.id,
         "asset_id": asset_version.asset_id,
@@ -111,6 +138,9 @@ def _asset_version_to_dict(asset_version) -> dict:
 
 
 def _error_response(message: str, status_code: int) -> tuple:
+    """
+    Generates an error response with logging.
+    """
     log.error(
         "Request failed",
         extra={
@@ -125,12 +155,18 @@ def _error_response(message: str, status_code: int) -> tuple:
 
 @bp.route("/health", methods=["GET"])
 def health() -> Response:
+    """
+    Endpoint to check the health of the service.
+    """
     log.info("Health check requested")
     return jsonify({"status": "ok"})
 
 
 @bp.route("/assets/load", methods=["POST"])
 def load_assets() -> tuple:
+    """
+    Endpoint to load assets from a file.
+    """
     payload = request.get_json(silent=True) or {}
     file_path = payload.get("file_path")
 
@@ -206,6 +242,9 @@ def load_assets() -> tuple:
 
 @bp.route("/assets", methods=["POST"])
 def create_asset() -> tuple:
+    """
+    Endpoint to create a new asset.
+    """
     payload = request.get_json(silent=True) or {}
 
     name = payload.get("name")
@@ -295,6 +334,9 @@ def create_asset() -> tuple:
 
 @bp.route("/assets", methods=["GET"])
 def get_assets() -> tuple:
+    """
+    Endpoint to retrieve assets based on query parameters.
+    """
     asset_name = request.args.get("asset")
     asset_type_raw = request.args.get("type")
 
@@ -375,6 +417,9 @@ def get_assets() -> tuple:
 
 @bp.route("/assets/versions", methods=["POST"])
 def create_asset_version() -> tuple:
+    """
+    Endpoint to create a new asset version.
+    """
     payload = request.get_json(silent=True) or {}
 
     name = payload.get("name")
@@ -485,6 +530,9 @@ def create_asset_version() -> tuple:
 
 @bp.route("/assets/versions", methods=["GET"])
 def get_asset_versions() -> tuple:
+    """
+    Endpoint to retrieve asset versions based on query parameters.
+    """
     asset_name = request.args.get("asset")
     asset_type_raw = request.args.get("type")
     department_raw = request.args.get("department")

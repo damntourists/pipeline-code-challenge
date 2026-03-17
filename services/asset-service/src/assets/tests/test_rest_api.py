@@ -1,12 +1,11 @@
 from pathlib import Path
 
-import pytest
-
 from assets.db.models.types import AssetType, Department, AssetStatus
 from assets.core.repository import AssetRepository
 
 
 def test_health_endpoint(api_client):
+    """Test the health endpoint"""
     response = api_client.get("/health")
 
     assert response.status_code == 200
@@ -14,6 +13,7 @@ def test_health_endpoint(api_client):
 
 
 def test_create_asset(api_client):
+    """Test creating a new asset"""
     response = api_client.post(
         "/assets",
         json={
@@ -34,6 +34,7 @@ def test_create_asset(api_client):
 
 
 def test_create_asset_missing_required_fields_returns_400(api_client):
+    """Test creating a new asset with missing required fields"""
     response = api_client.post(
         "/assets",
         json={
@@ -47,6 +48,7 @@ def test_create_asset_missing_required_fields_returns_400(api_client):
 
 
 def test_create_asset_invalid_type_returns_400(api_client):
+    """Test creating a new asset with an invalid type"""
     response = api_client.post(
         "/assets",
         json={
@@ -61,6 +63,7 @@ def test_create_asset_invalid_type_returns_400(api_client):
 
 
 def test_get_assets_returns_all_assets(api_client, db_session):
+    """Test getting all assets"""
     repo = AssetRepository(db_session)
     repo.create_new_asset(
         "hero",
@@ -83,6 +86,7 @@ def test_get_assets_returns_all_assets(api_client, db_session):
 
 
 def test_get_assets_filters_by_name_and_type(api_client, db_session):
+    """Test getting assets by name and type"""
     repo = AssetRepository(db_session)
     repo.create_new_asset(
         "hero",
@@ -105,6 +109,7 @@ def test_get_assets_filters_by_name_and_type(api_client, db_session):
 
 
 def test_get_assets_not_found_returns_404(api_client):
+    """Test getting assets that don't exist"""
     response = api_client.get("/assets?asset=missing&type=character")
 
     assert response.status_code == 404
@@ -112,6 +117,7 @@ def test_get_assets_not_found_returns_404(api_client):
 
 
 def test_create_asset_version(api_client, db_session):
+    """Test creating a new asset version"""
     repo = AssetRepository(db_session)
     repo.create_new_asset(
         "hero",
@@ -140,6 +146,7 @@ def test_create_asset_version(api_client, db_session):
 
 
 def test_create_asset_version_invalid_status_returns_400(api_client, db_session):
+    """Test creating a new asset version with an invalid status"""
     repo = AssetRepository(db_session)
     repo.create_new_asset(
         "hero",
@@ -163,6 +170,7 @@ def test_create_asset_version_invalid_status_returns_400(api_client, db_session)
 
 
 def test_get_asset_versions_returns_list(api_client, db_session):
+    """Test getting all versions for an asset"""
     repo = AssetRepository(db_session)
     asset = repo.create_new_asset(
         "hero",
@@ -186,6 +194,7 @@ def test_get_asset_versions_returns_list(api_client, db_session):
 
 
 def test_get_asset_versions_filters_by_department(api_client, db_session):
+    """Test getting versions by department"""
     repo = AssetRepository(db_session)
     asset = repo.create_new_asset(
         "hero",
@@ -211,6 +220,7 @@ def test_get_asset_versions_filters_by_department(api_client, db_session):
 
 
 def test_get_single_asset_version(api_client, db_session):
+    """Test getting a single asset version"""
     repo = AssetRepository(db_session)
     asset = repo.create_new_asset(
         "hero",
@@ -237,6 +247,7 @@ def test_get_single_asset_version(api_client, db_session):
 
 
 def test_get_asset_versions_missing_required_query_params_returns_400(api_client):
+    """Test getting asset versions with missing required query params"""
     response = api_client.get("/assets/versions")
 
     assert response.status_code == 400
@@ -244,12 +255,14 @@ def test_get_asset_versions_missing_required_query_params_returns_400(api_client
 
 
 def test_get_asset_versions_not_found_returns_404(api_client):
+    """Test getting asset versions that don't exist"""
     response = api_client.get("/assets/versions?asset=missing&type=character")
 
     assert response.status_code == 404
     assert "error" in response.get_json()
 
 def test_load_assets_from_json(api_client):
+    """Test loading assets from a JSON"""
     sample_file = Path("sample_data/asset_data.json").resolve()
 
     response = api_client.post(
@@ -261,6 +274,7 @@ def test_load_assets_from_json(api_client):
 
 
 def test_load_assets_missing_file_path_returns_400(api_client):
+    """Test loading assets with missing file path"""
     response = api_client.post("/assets/load", json={})
 
     assert response.status_code == 400
@@ -268,6 +282,7 @@ def test_load_assets_missing_file_path_returns_400(api_client):
 
 
 def test_load_assets_file_not_found_returns_404(api_client):
+    """Test loading assets from a non-existent file"""
     response = api_client.post(
         "/assets/load",
         json={"file_path": "sample_data/does_not_exist.json"},

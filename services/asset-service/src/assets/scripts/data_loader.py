@@ -11,6 +11,7 @@ from assets.db.models.types import AssetType, Department, AssetStatus
 log = setup_logger("json-loader")
 
 def load_from_json(service: AssetService, json_path: str) -> None:
+    """Load asset data from a JSON file and create assets in the database"""
     asset_schema = AssetSchema()
     asset_version_schema = AssetVersionSchema()
 

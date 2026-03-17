@@ -4,12 +4,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from asset_common.logging_utils import setup_logger
-
-
 load_dotenv()
-
-log = setup_logger("test")
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -21,6 +16,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_session():
+    """Yield a database session with automatic commit and rollback handling"""
     session = SessionLocal()
     try:
         yield session

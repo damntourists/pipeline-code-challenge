@@ -7,6 +7,7 @@ from assets.db.models.types import AssetStatus, Department, AssetType
 
 
 def test_version_sequence_validation_failure(db_session):
+    """Test that version sequence validation fails when jumping a version"""
     repo = AssetRepository(db_session)
     service = AssetService(repo)
 

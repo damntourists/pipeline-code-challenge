@@ -10,6 +10,7 @@ from assets.db.models.types import AssetType, Department, AssetStatus
 
 
 def test_create_new_asset_creates_version_1(db_session: Session):
+    """Test creating a new asset and its first version"""
     repo = AssetRepository(db_session)
 
     asset = repo.create_new_asset(
@@ -26,6 +27,7 @@ def test_create_new_asset_creates_version_1(db_session: Session):
     assert asset.versions[0].department == Department.MODELING
 
 def test_create_version_increment_automatically(db_session: Session):
+    """Test creating a new version automatically increments the version number"""
     repo = AssetRepository(db_session)
 
     asset = repo.create_new_asset(
@@ -42,11 +44,13 @@ def test_create_version_increment_automatically(db_session: Session):
 
 
 def test_get_by_id_returns_none_for_nonexistent_id(db_session: Session):
+    """Test get_by_id returns None for nonexistent id"""
     repo = AssetRepository(db_session)
     asset = repo.get_by_id(12345)
     assert asset is None
 
 def test_get_next_version_number_returns_next_version(db_session: Session):
+    """Test get_next_version_number returns the next version number"""
     repo = AssetRepository(db_session)
     asset = repo.create_new_asset(
         "CharTest",
@@ -56,6 +60,7 @@ def test_get_next_version_number_returns_next_version(db_session: Session):
     assert repo.get_next_version_number(asset.id, Department.MODELING) == 2
 
 def test_duplicate_asset_name_and_type_raises_error(db_session: Session):
+    """Test creating a duplicate asset raises an IntegrityError"""
     repo = AssetRepository(db_session)
 
     repo.create_new_asset(
@@ -74,6 +79,7 @@ def test_duplicate_asset_name_and_type_raises_error(db_session: Session):
         db_session.flush()
 
 def test_create_version_for_nonexistent_asset_raises_error(db_session: Session):
+    """Test creating a version for a nonexistent asset raises an IntegrityError"""
     repo = AssetRepository(db_session)
 
     # Should raise IntegrityError since asset_id does not exist
@@ -82,6 +88,7 @@ def test_create_version_for_nonexistent_asset_raises_error(db_session: Session):
 
 
 def test_unique_asset_constraint_raises_error(db_session: Session):
+    """Test creating a duplicate asset raises an IntegrityError"""
     repo = AssetRepository(db_session)
 
     repo.create_new_asset(
@@ -101,6 +108,7 @@ def test_unique_asset_constraint_raises_error(db_session: Session):
         db_session.flush()
 
 def test_orphaned_asset_version_raises_error(db_session: Session):
+    """Test creating a version for an orphaned asset raises an IntegrityError"""
     orphaned_version = AssetVersion(
         asset_id=12345,
         department=Department.MODELING,
@@ -111,6 +119,7 @@ def test_orphaned_asset_version_raises_error(db_session: Session):
         db_session.flush()
 
 def test_unique_asset_version_constraint_raises_error(db_session: Session):
+    """Test creating a duplicate asset version raises an IntegrityError"""
     repo = AssetRepository(db_session)
 
     asset = repo.create_new_asset(
@@ -134,6 +143,7 @@ def test_unique_asset_version_constraint_raises_error(db_session: Session):
 
 
 def test_version_increments_across_departments(db_session: Session):
+    """Test creating a new version automatically increments the version number"""
     repo = AssetRepository(db_session)
 
     char_model_asset = repo.create_new_asset(
@@ -157,6 +167,7 @@ def test_version_increments_across_departments(db_session: Session):
     assert char_anim_asset.version == 1
 
 def test_get_by_name_and_type(db_session: Session):
+    """Test get_by_name_and_type returns the correct asset"""
     repo = AssetRepository(db_session)
     repo.create_new_asset(
         "CharTest",
@@ -176,6 +187,7 @@ def test_get_by_name_and_type(db_session: Session):
     assert not_found_asset is None
 
 def test_get_all_assets(db_session: Session):
+    """Test get_all_assets returns all assets in the database"""
     repo = AssetRepository(db_session)
 
     for i in range(5):
@@ -191,6 +203,7 @@ def test_get_all_assets(db_session: Session):
     assert len(all_assets) == 5
 
 def test_get_all_versions(db_session: Session):
+    """Test get_all_versions returns all versions for an asset  """
     repo = AssetRepository(db_session)
 
     # v1
@@ -209,6 +222,7 @@ def test_get_all_versions(db_session: Session):
     assert len(asset.versions) == 6
 
 def test_version_increment_after_jump(db_session: Session):
+    """Test version number increments after a jump in version numbers"""
     repo = AssetRepository(db_session)
     asset = repo.create_new_asset(
         "CharTest",
@@ -222,6 +236,7 @@ def test_version_increment_after_jump(db_session: Session):
     assert next_version.version == 11
 
 def test_version_insert_after_jump(db_session: Session):
+    """Test version number increments after a jump in version numbers"""
     repo = AssetRepository(db_session)
 
     # v1
@@ -241,6 +256,7 @@ def test_version_insert_after_jump(db_session: Session):
     assert len(v1.versions) == 3
 
 def test_create_version_with_status(db_session: Session):
+    """Test creating a new version with a status"""
     repo = AssetRepository(db_session)
     asset = repo.create_new_asset(
         "CharTest",
@@ -254,6 +270,7 @@ def test_create_version_with_status(db_session: Session):
     assert v2.status == AssetStatus.INACTIVE
 
 def test_delete_asset_deletes_versions(db_session: Session):
+    """Test deleting an asset deletes its versions"""
     repo = AssetRepository(db_session)
     asset = repo.create_new_asset(
         "CharTest",
@@ -270,6 +287,7 @@ def test_delete_asset_deletes_versions(db_session: Session):
     assert len(versions) == 0
 
 def test_asset_name_is_case_sensitive(db_session: Session):
+    """Test asset name is case-sensitive"""
     repo = AssetRepository(db_session)
     repo.create_new_asset(
         "CharTest",
@@ -287,13 +305,16 @@ def test_asset_name_is_case_sensitive(db_session: Session):
 
 
 def test_non_existent_department_raises_error(db_session: Session):
+    """Test non-existent department raises ValueError"""
     with pytest.raises(ValueError):
         Department("non_existent")
 
 def test_non_existent_asset_type_raises_error(db_session: Session):
+    """Test non-existent asset type raises ValueError"""
     with pytest.raises(ValueError):
         AssetType("non_existent")
 
 def test_non_existent_asset_status_raises_error(db_session: Session):
+    """Test non-existent asset status raises ValueError"""
     with pytest.raises(ValueError):
         AssetStatus("non_existent")
