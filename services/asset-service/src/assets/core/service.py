@@ -8,6 +8,7 @@ from assets.core.validation.rules import VersionSequenceValidator
 from assets.db.models import Asset, AssetVersion
 from assets.db.models.types import AssetType, Department, AssetStatus
 
+
 class AssetService:
     def __init__(self, repository: AssetRepository):
         self.repo = repository
