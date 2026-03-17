@@ -3,6 +3,7 @@ from typing import Any, Generator
 import pytest
 
 
+from assets.api import routes
 from assets.main import app as flask_app
 from sqlalchemy import create_engine, event, Engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -45,4 +46,10 @@ def db_session(app, engine):
         transaction.rollback()
     connection.close()
 
-    #Base.metadata.drop_all(engine)
+@pytest.fixture
+def api_client(client, db_session, monkeypatch):
+    def _session_factory():
+        return db_session
+
+    monkeypatch.setattr(routes, "SessionLocal", _session_factory)
+    return client
