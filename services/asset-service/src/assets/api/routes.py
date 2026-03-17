@@ -115,7 +115,7 @@ def _error_response(message: str, status_code: int) -> tuple:
         "Request failed",
         extra={
             "status_code": status_code,
-            "message": message,
+            "error_message": message,
             "path": request.path,
             "method": request.method,
         },
