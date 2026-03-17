@@ -243,4 +243,14 @@ pip install -e ./common
 pip install -e ./services/asset-service
 ```
 
+---
 
+## What could be better?
+- Add more tests
+- Add more validation
+- Add more logging
+- Add more error handling
+- Add more documentation
+- Add more comments
+- Replace Dozzle logging with something like Jaeger for better tracing/observability
+- Possibly separate validation into a separate service
