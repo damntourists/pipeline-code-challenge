@@ -28,4 +28,4 @@ jobs:
         run: pip install -e ./services/asset-service
 
       - name: Run tests
-        run: pytest services/asset-service/tests -q
+        run: pytest services/asset-service/src/assets/tests -q
