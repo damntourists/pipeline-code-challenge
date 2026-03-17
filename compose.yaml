@@ -127,6 +127,7 @@ services:
       volumes:
         - ./services/asset-service/src/assets:/app/src/assets
         - ./common/src/asset_common:/tmp/common/src/asset_common
+        - ./sample_data:/app/sample_data
       command: pytest src/assets/tests
 
 volumes:

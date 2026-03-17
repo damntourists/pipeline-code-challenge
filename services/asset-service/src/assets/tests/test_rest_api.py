@@ -250,7 +250,7 @@ def test_get_asset_versions_not_found_returns_404(api_client):
     assert "error" in response.get_json()
 
 def test_load_assets_from_json(api_client):
-    sample_file = Path(__file__).resolve().parents[5] / "sample_data" / "asset_data.json"
+    sample_file = Path("sample_data/asset_data.json").resolve()
 
     response = api_client.post(
         "/assets/load",
